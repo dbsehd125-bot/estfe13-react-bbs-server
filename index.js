@@ -108,7 +108,20 @@ app.post("/delete", (req, res) => {
 app.post("/deleteselect", (req, res) => {
   console.log(req.body);
   const { boardIdList } = req.body;
+  //서버에서 여러 이미지 삭제
+  db.query(
+    `SELECT image_path FROM board WHERE id in (${boardIdList})`,
+    (err, result) => {
+      if (err) throw err;
+      if (result && result.length > 0) {
+        result.forEach(item => {
+          deleteUploadedFile(item.image_path);
+        });
+      }
+    },
+  );
 
+  //테이블에서 글 여러개 삭제
   const sqlQuery = `delete from board where id in (${boardIdList})`;
   db.query(sqlQuery, (err, result) => {
     if (err) throw err;
